@@ -18,9 +18,6 @@ class CVRP:
         content = inputFile.readlines()
         content = [line.strip('\n') for line in content]
 
-        # get num of trucks
-        self._numOfTrucks = int(''.join(content[0][content[0].find('k') + 1:]))
-
         # get optimal solution
         self._optimalVal = int(''.join(content[1].strip(')')[content[1].find('Optimal value:') + 15:]))
 
@@ -47,7 +44,6 @@ class CVRP:
 
         self._nodesCoordinates = np.array(nodesCoordinates)
         self._nodesDemands = np.array(nodesDemands)
-        self._separator = self._dim + 1
 
     def calculateFitness(self, vec):
 
@@ -73,7 +69,7 @@ class CVRP:
         return routesStr
 
     def generateRandomVec(self):
-        # each solution is represented by a permutation [1, dim] with 0 in between to mark new routes
+        # each solution is represented by a permutation [1, dim - 1] with 0 in between to mark new routes
         vec = np.random.permutation(list(range(1, self._dim)))
         return self._addStopsToVec(vec.tolist())
 

@@ -74,7 +74,6 @@ class GeneticCVRP(CVRP):
         indexVal = vec[index1]
         vec.pop(index1)
         vec.insert(insertionIndex, indexVal)
-
         vec = self._removeTrailingStops(vec)
         vec = self._validateVec(vec)
         return vec
