@@ -1,7 +1,7 @@
 import psutil
 
-GA_POP_SIZE = 300  # ga population size
-GA_MAX_ITER = 300  # maximum iterations
+GA_POP_SIZE = 200  # ga population size
+GA_MAX_ITER = 200  # maximum iterations
 
 CLOCK_RATE = psutil.cpu_freq().current * (2 ** 20)  # clock ticks per second
 
@@ -11,8 +11,8 @@ Y = 1
 DEFAULT_TARGET = 1
 
 '''------------------GA-------------------'''
-GA_ELITE_RATE = 0.1  # elitism rate
-GA_MUTATION_RATE = 0.25  # mutation rate
+GA_ELITE_RATE = 0.2  # elitism rate
+GA_MUTATION_RATE = 0.4  # mutation rate
 
 '''------------------DEFAULT_PARSER-------------------'''
 

@@ -35,8 +35,12 @@ def main():
     algoName = args.algo
     popSize = int(args.popsize)
     target = int(args.target)
+    if algoName == 'GeneticAlgorithm':
+        cvrpName = 'GeneticCVRP'
+    else:
+        cvrpName = 'CVRP'
 
-    cvrp = CVRP(target)
+    cvrp = CVRP.factory(cvrpName, target)
 
     algo = Algorithm.factory(algoName=algoName,
                              popSize=popSize,

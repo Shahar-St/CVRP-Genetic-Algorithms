@@ -1,5 +1,7 @@
+import importlib
 import math
 import os
+import random
 
 import numpy as np
 
@@ -9,7 +11,6 @@ from util.Consts import X, Y
 class CVRP:
 
     def __init__(self, target):
-
         filePath = os.getcwd() + '\\util\\inputfiles\\' + str(target) + '.txt'
         inputFile = open(filePath, 'r')
 
@@ -46,82 +47,96 @@ class CVRP:
 
         self._nodesCoordinates = np.array(nodesCoordinates)
         self._nodesDemands = np.array(nodesDemands)
+        self._separator = self._dim + 1
 
     def calculateFitness(self, vec):
-        self.translateVec(vec)
-        numOfUsedTrucks = 1
 
-        # dist of first 0->first
         distance = self._calcDist(0, vec[0])
-        currentTruckUnloads = self._nodesDemands[vec[0]]
 
-        for i in range(self._dim - 2):
+        for i in range(len(vec) - 1):
+            distance += self._calcDist(vec[i], vec[i + 1])
 
-            # check if we exceeded capacity
-            if currentTruckUnloads + self._nodesDemands[vec[i + 1]] > self._vehicleCapacity:
-                # return to warehouse and send a new truck
-                distance += self._calcDist(vec[i], 0) + self._calcDist(0, vec[i + 1])
-                currentTruckUnloads = self._nodesDemands[vec[i + 1]]
-                numOfUsedTrucks += 1
-            else:
-                distance += self._calcDist(vec[i], vec[i + 1])
-                currentTruckUnloads += self._nodesDemands[vec[i + 1]]
+        distance += self._calcDist(vec[len(vec) - 1], 0)
 
-        distance += self._calcDist(vec[self._dim - 2], 0)
-        # check if a valid solution
-        if numOfUsedTrucks > self._numOfTrucks:
-            return distance ** 2
-
-        return distance - self._optimalVal
-
-    def getTargetSize(self):
-        raise NotImplementedError
+        return int(distance - self._optimalVal)
 
     def translateVec(self, vec):
-        numOfUsedTrucks = 1
 
-        # dist of first 0->first
-        distance = self._calcDist(0, vec[0])
-        currentTruckUnloads = self._nodesDemands[vec[0]]
-        totalRoutes = []
-        currentTruckRoute = [vec[0]]
+        routesStr = f'{self.calculateFitness(vec) + self._optimalVal}\n0 '
 
-        for i in range(self._dim - 2):
+        for i in vec:
+            routesStr += f'{i} '
+            if i == 0:
+                routesStr += '\n0 '
 
-            # check if we exceeded capacity
-            if currentTruckUnloads + self._nodesDemands[vec[i + 1]] > self._vehicleCapacity:
-                # return to warehouse and send a new truck
-                distance += self._calcDist(vec[i], 0) + self._calcDist(0, vec[i + 1])
-                currentTruckUnloads = self._nodesDemands[vec[i + 1]]
-                numOfUsedTrucks += 1
-                totalRoutes.append([0] + currentTruckRoute + [0])
-                currentTruckRoute = [vec[i + 1]]
-            else:
-                distance += self._calcDist(vec[i], vec[i + 1])
-                currentTruckUnloads += self._nodesDemands[vec[i + 1]]
-                currentTruckRoute.append(vec[i + 1])
-
-        totalRoutes.append([0] + currentTruckRoute + [0])
-
-        # check if a valid solution
-        if numOfUsedTrucks > self._numOfTrucks:
-            return None
-
-        solutionStr = f'{distance:.2f}\n'
-        for truck in totalRoutes:
-            solutionStr += ' '.join(map(str, truck)) + '\n'
-
-        if len(totalRoutes) < self._numOfTrucks:
-            solutionStr += '0 0\n' * (self._numOfTrucks - len(totalRoutes))
-
-        return solutionStr
+        routesStr += '0\n'
+        return routesStr
 
     def generateRandomVec(self):
-        # each solution is represented by a permutation [1, dim]
-        # which is being translated to a route (assuming an ordered permutation) 0->1->...->dim->0
-        # if during the route the sum of distances exceeds the capacity another trucks is being dispatched
-        # i.e: if we exceeded the capacity between nodes i,j then the route will be 0->1->...->i->0->j->..->dim->0
-        return np.random.permutation(list(range(1, self._dim)))
+        # each solution is represented by a permutation [1, dim] with 0 in between to mark new routes
+        vec = np.random.permutation(list(range(1, self._dim)))
+        return self._addStopsToVec(vec.tolist())
+
+    # get a vec (with no stops at all) and add returns to depot to make it valid
+    def _addStopsToVec(self, vec):
+        if self._sumOfDemands(vec) <= self._vehicleCapacity:
+            return vec
+
+        # choose random location in vec
+        index = random.randrange(1, len(vec))
+        return self._addStopsToVec(vec[:index]) + [0] + self._addStopsToVec(vec[index:])
+
+    # check if a vec is a valid solution and add stops if needed
+    def _validateVec(self, vec):
+        if 0 not in vec:
+            return self._addStopsToVec(vec)
+
+        indexOfStop = vec.index(0)
+        return self._validateVec(vec[:indexOfStop]) + [0] + self._validateVec(vec[indexOfStop + 1:])
+
+    def _sumOfDemands(self, vec):
+        demands = 0
+        for node in vec:
+            demands += self._nodesDemands[node]
+
+        return demands
+
 
     def _calcDist(self, node1, node2):
         return math.dist(self._nodesCoordinates[node1], self._nodesCoordinates[node2])
+
+    def _removeTrailingStops(self, vec):
+
+        while vec[0] == 0:
+            vec.pop(0)
+
+        while vec[-1] == 0:
+            vec.pop()
+
+        i = 0
+        while i < len(vec) - 1:
+            if vec[i] == vec[i + 1]:
+                vec.pop(i)
+            else:
+                i += 1
+
+        return vec
+
+    @staticmethod
+    def factory(cvrpName, target):
+        module = importlib.import_module('problems.' + cvrpName)
+        cvrp = getattr(module, cvrpName)
+
+        return cvrp(target)
+
+
+
+
+
+
+
+
+
+
+
+

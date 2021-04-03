@@ -1,5 +1,7 @@
+import math
 import random
 import time
+from math import sqrt
 
 import numpy as np
 
@@ -46,9 +48,9 @@ class GeneticAlgorithm(Algorithm):
             iterCounter += 1
 
             elapsedTime = time.time() - startTime
-            print(f'Best: {self._problem.translateVec(best.getVec())} ({best.getFitness()}). Mean: {self._mean:.2f},'
-                  f' STD: {self._standardDeviation:.2f}. Time in secs: {elapsedTime}. '
-                  f'CPU clicks: {elapsedTime * CLOCK_RATE}')
+            # print(f'Best:\n{self._problem.translateVec(best.getVec())}({best.getFitness()}). Mean: {self._mean:.2f},'
+            #       f' STD: {self._standardDeviation:.2f}. Time in secs: {elapsedTime}. '
+            #       f'CPU clicks: {elapsedTime * CLOCK_RATE}\n')
 
         totalElapsedTime = time.time() - totalRunTime
         print(f'Total: Iterations: {iterCounter}. Elapsed Time in secs: {totalElapsedTime}.'
@@ -62,7 +64,7 @@ class GeneticAlgorithm(Algorithm):
         tempPopulation = self._getElite()
 
         # get the candidates to be parents
-        candidates = self._getCandidates()
+        candidates = self._getCandidates(self._citizens)
         candidatesSize = len(candidates)
 
         # fill in the rest of the population
@@ -71,11 +73,11 @@ class GeneticAlgorithm(Algorithm):
             # choose parents and make child
             parent1 = candidates[random.randrange(candidatesSize)]
             parent2 = candidates[random.randrange(candidatesSize)]
-            newChild = self._makeNewChild(parent1, parent2)
+            newChild = self._problem.crossover(parent1.getVec(), parent2.getVec())
 
             # mutation factor
             if random.random() < self._mutationRate:
-                newChild.setVec(self._mutate(newChild.getVec()))
+                newChild.setVec(self._problem.mutate(newChild.getVec()))
 
             tempPopulation.append(newChild)
 
@@ -95,43 +97,42 @@ class GeneticAlgorithm(Algorithm):
 
     def _getElite(self):
         eliteSize = int(self._popSize * self._eliteRate)
-        return self._citizens[:eliteSize]
+        return self._citizens[:eliteSize].tolist()
 
-    def _getCandidates(self):
-        return np.array(self._citizens[:int(self._popSize / 2)])
+    def _getCandidates(self, citizens):
+        candidates = []
+        fitnessSum = 0
 
-    def _makeNewChild(self, parent1, parent2):
+        # calculate sum of fitness of all genes.
+        for i in range(len(citizens)):
+            fitnessSum += math.sqrt(citizens[i].getFitness())  # scaling with sqrt
 
-        vecSize = self._
-        newChildVec = []
+        # calculate a proportional fitness for each gene.
+        fitnessRate = []
+        for i in range(len(citizens)):
+            fitnessRate.append(math.sqrt(citizens[i].getFitness()) / fitnessSum)  # scaling with sqrt
 
-        parent2List = parent2.getVec().tolist()
+        # at index i we sum up the fitnesses until index i.
+        # flip the list - the lower the fitness, the better the solution.
+        cumFitnessRate = list(np.cumsum(np.flip(fitnessRate)))
 
-        for i in range(vecSize):
-            if random.random() < 0.5:
-                newChildVec.append(parent1.getVec()[i])
-                if parent1.getVec()[i] in parent2List:
-                    parent2List.remove(parent1.getVec()[i])
-            else:
-                newChildVec.append(parent2List[0])
-                parent2List.pop(0)
+        # N(pop size) spins
+        for j in range(len(cumFitnessRate)):
+            r = random.random()
 
-        return GeneticEntity(np.array(newChildVec))
-        # childVec = np.array([parent1.getVec()[i] if random.random() < 0.5 else parent2.getVec()[i]
-        #                      for i in range(self._popSize)])
-        #
-        # return GeneticEntity(childVec)
+            i = 0
+            found = False
 
-    def _mutate(self, vec):
-        raise Exception
-        # choose a random index and flip it
-        indexToMutate = random.randrange(self._popSize)
-        if vec[indexToMutate] == 1:
-            vec[indexToMutate] = 0
-        else:
-            vec[indexToMutate] = 1
+            # find the index that matching to r and append it to candidates list.
+            while i < len(cumFitnessRate) and not found:
+                if r < cumFitnessRate[i]:
+                    candidates.append(citizens[i])
+                    found = True
+                i += 1
 
-        return vec
+        return np.array(candidates)
+
+
 
 
 
