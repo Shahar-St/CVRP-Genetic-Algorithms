@@ -15,6 +15,7 @@ def main():
     parser.add_argument('-a', '--algo', default=DEFAULT_ALGORITHM)
     parser.add_argument('-ps', '--popsize', default=GA_POP_SIZE)
     parser.add_argument('-t', '--target', default=DEFAULT_TARGET)
+    parser.add_argument('-ts', '--tabusize', default=MAX_TABU_SIZE)
 
     args = parser.parse_args()
 
@@ -31,22 +32,28 @@ def main():
         print('Invalid target, must be an int')
         return
 
+    if type(args.tabusize) != int and not args.tabusize.isdigit():
+        print('Invalid tabu size, must be an int')
+        exit(1)
+
     # get params
     algoName = args.algo
     popSize = int(args.popsize)
     target = int(args.target)
+    tabuSize = int(args.tabusize)
     if algoName == 'GeneticAlgorithm':
         cvrpName = 'GeneticCVRP'
     else:
         cvrpName = 'CVRP'
-
+    cvrpName = 'GeneticCVRP'
     cvrp = CVRP.factory(cvrpName, target)
 
     algo = Algorithm.factory(algoName=algoName,
                              popSize=popSize,
                              eliteRate=GA_ELITE_RATE,
                              problem=cvrp,
-                             mutationRate=GA_MUTATION_RATE
+                             mutationRate=GA_MUTATION_RATE,
+                             maxTabuSize=tabuSize
                              )
 
     # declare the run parameters
@@ -56,9 +63,11 @@ def main():
         f'Algo: {algoName}\n'
         f'Pop size: {popSize}\n'
     )
+    if algoName == 'TabuSearchAlgorithm':
+        print(f'Tabu size: {tabuSize}\n')
+
     solVec = algo.findSolution(GA_MAX_ITER)
     print(f'Solution = {cvrp.translateVec(solVec)}\n')
-
 
     # print summery of run
     endTime = time.time()

@@ -1,8 +1,5 @@
-from abc import ABC
-
-
 # An abstract class that implements and declares common functionality to all entities
-class IndividualEntity(ABC):
+class IndividualEntity:
 
     def __init__(self, vec):
         self._fitness = 0
@@ -22,3 +19,6 @@ class IndividualEntity(ABC):
 
     def __lt__(self, other):
         return self._fitness < other.getFitness()
+
+    def __eq__(self, other):
+        return self._vec == other.getVec()

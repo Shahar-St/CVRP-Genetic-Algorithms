@@ -1,4 +1,6 @@
+import copy
 import importlib
+import itertools
 import math
 import os
 import random
@@ -6,6 +8,7 @@ import random
 import numpy as np
 
 from util.Consts import X, Y
+from util.Util import getValidIndexes
 
 
 class CVRP:
@@ -48,7 +51,7 @@ class CVRP:
     def generateRandomVec(self):
         # each solution is represented by a permutation [1, dim - 1]
         vec = np.random.permutation(list(range(1, self._dim)))
-        return vec
+        return vec.tolist()
 
     def _getVecWithStops(self, vec):
 
@@ -70,7 +73,6 @@ class CVRP:
 
 
     def calculateFitness(self, vec):
-
 
         vecWithStops = self._getVecWithStops(vec)
 
@@ -102,6 +104,46 @@ class CVRP:
             demands += self._nodesDemands[node]
 
         return demands
+
+    def generateGreedyVec(self):
+        allCities = [i for i in range(1, self._dim)]
+        greedyVec = []
+        minCity = self._getCityWithMinDistanceToCurrent(0, allCities)
+        greedyVec.append(minCity)
+        allCities.remove(minCity)
+
+        while len(allCities) > 0:
+            minCity = self._getCityWithMinDistanceToCurrent(greedyVec[-1], allCities)
+            greedyVec.append(minCity)
+            allCities.remove(minCity)
+
+        return greedyVec
+
+    def _getCityWithMinDistanceToCurrent(self, current, cities):
+
+        minCity = cities[0]
+        minDis = self._calcDist(current, cities[0])
+        for city in cities:
+            currDis = self._calcDist(current, city)
+            if currDis < minDis:
+                minCity = city
+                minDis = currDis
+
+        return minCity
+
+
+    def generateNeighbors(self, vec):
+
+        pairsList = list(itertools.combinations(range(self._dim - 1), 2))
+        random.shuffle(pairsList)
+        pairsList = pairsList[:int(len(pairsList) / 2)]
+        neighbors = []
+        for pair in pairsList:
+            neighbor = vec[:pair[0]] + np.flip(vec[pair[0]:pair[1]]).tolist() + vec[pair[1]:]
+
+            neighbors.append(neighbor)
+
+        return neighbors
 
     @staticmethod
     def factory(cvrpName, target):

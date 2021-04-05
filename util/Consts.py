@@ -1,6 +1,6 @@
 import psutil
 
-GA_POP_SIZE = 200  # ga population size
+GA_POP_SIZE = 2  # ga population size
 GA_MAX_ITER = 200  # maximum iterations
 
 CLOCK_RATE = psutil.cpu_freq().current * (2 ** 20)  # clock ticks per second
@@ -14,11 +14,14 @@ DEFAULT_TARGET = 1
 GA_ELITE_RATE = 0.2  # elitism rate
 GA_MUTATION_RATE = 0.4  # mutation rate
 
+'''------------------TS-------------------'''
+MAX_TABU_SIZE = 500
+
 '''------------------DEFAULT_PARSER-------------------'''
 
-DEFAULT_ALGORITHM = 'GeneticAlgorithm'
+DEFAULT_ALGORITHM = 'TabuSearchAlgorithm'
 
 
 '''------------------ALLOWED_PARSER_NAMES-------------------'''
 
-ALLOWED_ALGO_NAMES = ('GeneticAlgorithm')
+ALLOWED_ALGO_NAMES = ('GeneticAlgorithm', 'TabuSearchAlgorithm')
