@@ -30,7 +30,7 @@ def main():
 
     if type(args.target) != int and not args.popsize.isdigit():
         print('Invalid target, must be an int')
-        return
+        exit(1)
 
     if type(args.tabusize) != int and not args.tabusize.isdigit():
         print('Invalid tabu size, must be an int')
@@ -45,7 +45,7 @@ def main():
         cvrpName = 'GeneticCVRP'
     else:
         cvrpName = 'CVRP'
-    cvrpName = 'GeneticCVRP'
+
     cvrp = CVRP.factory(cvrpName, target)
 
     algo = Algorithm.factory(algoName=algoName,
@@ -66,6 +66,7 @@ def main():
     if algoName == 'TabuSearchAlgorithm':
         print(f'Tabu size: {tabuSize}\n')
 
+    # find a solution and print it
     solVec = algo.findSolution(GA_MAX_ITER)
     print(f'Solution = {cvrp.translateVec(solVec)}\n')
 

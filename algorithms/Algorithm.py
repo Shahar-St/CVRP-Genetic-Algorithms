@@ -34,3 +34,13 @@ class Algorithm(ABC):
                 popSize=popSize,
                 maxTabuSize=maxTabuSize
             )
+
+        if algoName == 'SimulatedAnnealing':
+            return algo(
+                problem=problem,
+                popSize=popSize
+            )
+
+        else:
+            raise Exception('Unknown algorithm')
+

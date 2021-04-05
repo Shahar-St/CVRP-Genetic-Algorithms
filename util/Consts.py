@@ -24,4 +24,4 @@ DEFAULT_ALGORITHM = 'TabuSearchAlgorithm'
 
 '''------------------ALLOWED_PARSER_NAMES-------------------'''
 
-ALLOWED_ALGO_NAMES = ('GeneticAlgorithm', 'TabuSearchAlgorithm')
+ALLOWED_ALGO_NAMES = ('GeneticAlgorithm', 'TabuSearchAlgorithm', 'SimulatedAnnealing')
