@@ -45,50 +45,56 @@ class CVRP:
         self._nodesCoordinates = np.array(nodesCoordinates)
         self._nodesDemands = np.array(nodesDemands)
 
-    def calculateFitness(self, vec):
+    def generateRandomVec(self):
+        # each solution is represented by a permutation [1, dim - 1]
+        vec = np.random.permutation(list(range(1, self._dim)))
+        return vec
 
-        distance = self._calcDist(0, vec[0])
+    def _getVecWithStops(self, vec):
+
+        vecWithStops = [0, vec[0]]
+        currentTruckCapacity = self._nodesDemands[vec[0]]
 
         for i in range(len(vec) - 1):
-            distance += self._calcDist(vec[i], vec[i + 1])
+            # update route capacity
+            currentTruckCapacity += self._nodesDemands[vec[i + 1]]
+            # check if exceeded capacity
+            if currentTruckCapacity > self._vehicleCapacity:
+                vecWithStops.append(0)
+                currentTruckCapacity = self._nodesDemands[vec[i + 1]]
 
-        distance += self._calcDist(vec[len(vec) - 1], 0)
+            vecWithStops.append(vec[i + 1])
+
+        vecWithStops.append(0)
+        return vecWithStops
+
+
+    def calculateFitness(self, vec):
+
+
+        vecWithStops = self._getVecWithStops(vec)
+
+        distance = 0
+        for i in range(len(vecWithStops) - 1):
+            distance += self._calcDist(vecWithStops[i], vecWithStops[i + 1])
 
         return int(distance - self._optimalVal)
+
+    def _calcDist(self, node1, node2):
+        return math.dist(self._nodesCoordinates[node1], self._nodesCoordinates[node2])
 
     def translateVec(self, vec):
 
         routesStr = f'{self.calculateFitness(vec) + self._optimalVal}\n0 '
-
-        for i in vec:
-            routesStr += f'{i} '
-            if i == 0:
+        vecWithStops = self._getVecWithStops(vec)
+        for i in range(1, len(vecWithStops) - 1):
+            routesStr += f'{vecWithStops[i]} '
+            if vecWithStops[i] == 0:
                 routesStr += '\n0 '
 
         routesStr += '0\n'
+
         return routesStr
-
-    def generateRandomVec(self):
-        # each solution is represented by a permutation [1, dim - 1] with 0 in between to mark new routes
-        vec = np.random.permutation(list(range(1, self._dim)))
-        return self._addStopsToVec(vec.tolist())
-
-    # get a vec (with no stops at all) and add returns to depot to make it valid
-    def _addStopsToVec(self, vec):
-        if self._sumOfDemands(vec) <= self._vehicleCapacity:
-            return vec
-
-        # choose random location in vec
-        index = random.randrange(1, len(vec))
-        return self._addStopsToVec(vec[:index]) + [0] + self._addStopsToVec(vec[index:])
-
-    # check if a vec is a valid solution and add stops if needed
-    def _validateVec(self, vec):
-        if 0 not in vec:
-            return self._addStopsToVec(vec)
-
-        indexOfStop = vec.index(0)
-        return self._validateVec(vec[:indexOfStop]) + [0] + self._validateVec(vec[indexOfStop + 1:])
 
     def _sumOfDemands(self, vec):
         demands = 0
@@ -97,42 +103,9 @@ class CVRP:
 
         return demands
 
-
-    def _calcDist(self, node1, node2):
-        return math.dist(self._nodesCoordinates[node1], self._nodesCoordinates[node2])
-
-    def _removeTrailingStops(self, vec):
-
-        while vec[0] == 0:
-            vec.pop(0)
-
-        while vec[-1] == 0:
-            vec.pop()
-
-        i = 0
-        while i < len(vec) - 1:
-            if vec[i] == vec[i + 1]:
-                vec.pop(i)
-            else:
-                i += 1
-
-        return vec
-
     @staticmethod
     def factory(cvrpName, target):
         module = importlib.import_module('problems.' + cvrpName)
         cvrp = getattr(module, cvrpName)
 
         return cvrp(target)
-
-
-
-
-
-
-
-
-
-
-
-
