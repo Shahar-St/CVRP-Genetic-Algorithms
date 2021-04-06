@@ -1,5 +1,4 @@
 import copy
-import threading
 from multiprocessing.pool import ThreadPool
 
 from algorithms.Algorithm import Algorithm

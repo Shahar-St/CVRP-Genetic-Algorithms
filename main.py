@@ -13,9 +13,10 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--algo', default=DEFAULT_ALGORITHM)
-    parser.add_argument('-ps', '--popsize', default=GA_POP_SIZE)
+    parser.add_argument('-ps', '--popSize', default=GA_POP_SIZE)
     parser.add_argument('-t', '--target', default=DEFAULT_TARGET)
-    parser.add_argument('-ts', '--tabusize', default=MAX_TABU_SIZE)
+    parser.add_argument('-ts', '--tabuSize', default=MAX_TABU_SIZE)
+    parser.add_argument('-it', '--initialTemp', default=DEFAULT_INITIAL_TEMP)
 
     args = parser.parse_args()
 
@@ -24,23 +25,28 @@ def main():
         print("invalid algo!\n")
         exit(1)
 
-    if type(args.popsize) != int and not args.popsize.isdigit():
+    if type(args.popSize) != int and not args.popSize.isdigit():
         print('Invalid population size, must be an int')
         exit(1)
 
-    if type(args.target) != int and not args.popsize.isdigit():
+    if type(args.target) != int and not args.popSize.isdigit():
         print('Invalid target, must be an int')
         exit(1)
 
-    if type(args.tabusize) != int and not args.tabusize.isdigit():
+    if type(args.tabuSize) != int and not args.tabuSize.isdigit():
         print('Invalid tabu size, must be an int')
+        exit(1)
+
+    if type(args.initialTemp) != int and not args.initialTemp.isdigit():
+        print('Invalid initial temp, must be an int')
         exit(1)
 
     # get params
     algoName = args.algo
-    popSize = int(args.popsize)
+    popSize = int(args.popSize)
     target = int(args.target)
-    tabuSize = int(args.tabusize)
+    tabuSize = int(args.tabuSize)
+    initialTemp = int(args.initialTemp)
     if algoName == 'GeneticAlgorithm':
         cvrpName = 'GeneticCVRP'
     else:
@@ -53,7 +59,8 @@ def main():
                              eliteRate=GA_ELITE_RATE,
                              problem=cvrp,
                              mutationRate=GA_MUTATION_RATE,
-                             maxTabuSize=tabuSize
+                             maxTabuSize=tabuSize,
+                             initialTemp=initialTemp
                              )
 
     # declare the run parameters

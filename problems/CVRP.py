@@ -22,7 +22,7 @@ class CVRP:
         content = [line.strip('\n') for line in content]
 
         # get optimal solution
-        self._optimalVal = int(''.join(content[1].strip(')')[content[1].find('Optimal value:') + 15:]))
+        self._optimalVal = int(''.join(content[1].strip(')')[content[1].find('value:') + 7:]))
 
         # get dim
         self._dim = int(''.join(content[3][content[3].find(':') + 2:]))
@@ -131,6 +131,10 @@ class CVRP:
 
         return minCity
 
+    def generateOneNeighbor(self, vec):
+        index1, index2 = getValidIndexes(len(vec))
+        neighbor = vec[:index1] + np.flip(vec[index1:index2]).tolist() + vec[index2:]
+        return neighbor
 
     def generateNeighbors(self, vec):
 

@@ -15,7 +15,7 @@ class Algorithm(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def factory(algoName, popSize, eliteRate, mutationRate, problem, maxTabuSize):
+    def factory(algoName, popSize, eliteRate, mutationRate, problem, maxTabuSize, initialTemp):
         module = importlib.import_module('algorithms.' + algoName)
 
         algo = getattr(module, algoName)
@@ -35,10 +35,11 @@ class Algorithm(ABC):
                 maxTabuSize=maxTabuSize
             )
 
-        if algoName == 'SimulatedAnnealing':
+        if algoName == 'SimulatedAnnealingAlgorithm':
             return algo(
                 problem=problem,
-                popSize=popSize
+                popSize=popSize,
+                initialTemp=initialTemp
             )
 
         else:
