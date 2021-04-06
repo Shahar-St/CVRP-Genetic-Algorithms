@@ -13,10 +13,14 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--algo', default=DEFAULT_ALGORITHM)
-    parser.add_argument('-ps', '--popSize', default=GA_POP_SIZE)
-    parser.add_argument('-t', '--target', default=DEFAULT_TARGET)
-    parser.add_argument('-ts', '--tabuSize', default=MAX_TABU_SIZE)
-    parser.add_argument('-it', '--initialTemp', default=DEFAULT_INITIAL_TEMP)
+    parser.add_argument('-ps', '--popSize', type=int, default=GA_POP_SIZE)
+    parser.add_argument('-t', '--target', type=int, default=DEFAULT_TARGET)
+    parser.add_argument('-ts', '--tabuSize', type=int, default=MAX_TABU_SIZE)
+    parser.add_argument('-it', '--initialTemp', type=int, default=DEFAULT_INITIAL_TEMP)
+    parser.add_argument('-heu', '--heuristicIntensity', type=float, default=DEFAULT_HEUR_INTEN)
+    parser.add_argument('-his', '--historyIntensity', type=float, default=DEFAULT_HIST_INTEN)
+    parser.add_argument('-dr', '--decayRate', type=float, default=DEFAULT_DECAY_RATE)
+    parser.add_argument('-lf', '--localPheRate', type=float, default=DEFAULT_LOCAL_PHE_RATE)
 
     args = parser.parse_args()
 
@@ -25,28 +29,16 @@ def main():
         print("invalid algo!\n")
         exit(1)
 
-    if type(args.popSize) != int and not args.popSize.isdigit():
-        print('Invalid population size, must be an int')
-        exit(1)
-
-    if type(args.target) != int and not args.popSize.isdigit():
-        print('Invalid target, must be an int')
-        exit(1)
-
-    if type(args.tabuSize) != int and not args.tabuSize.isdigit():
-        print('Invalid tabu size, must be an int')
-        exit(1)
-
-    if type(args.initialTemp) != int and not args.initialTemp.isdigit():
-        print('Invalid initial temp, must be an int')
-        exit(1)
-
     # get params
     algoName = args.algo
-    popSize = int(args.popSize)
-    target = int(args.target)
-    tabuSize = int(args.tabuSize)
-    initialTemp = int(args.initialTemp)
+    popSize = args.popSize
+    target = args.target
+    tabuSize = args.tabuSize
+    initialTemp = args.initialTemp
+    historyIntensity = args.historyIntensity
+    heuristicIntensity = args.heuristicIntensity
+    decayRate = args.decayRate
+    localPheRate = args.localPheRate
     if algoName == 'GeneticAlgorithm':
         cvrpName = 'GeneticCVRP'
     else:
@@ -60,7 +52,11 @@ def main():
                              problem=cvrp,
                              mutationRate=GA_MUTATION_RATE,
                              maxTabuSize=tabuSize,
-                             initialTemp=initialTemp
+                             initialTemp=initialTemp,
+                             heuristicIntensity=heuristicIntensity,
+                             historyIntensity=historyIntensity,
+                             decayRate=decayRate,
+                             localPheRate=localPheRate
                              )
 
     # declare the run parameters

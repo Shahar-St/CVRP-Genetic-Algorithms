@@ -15,7 +15,8 @@ class Algorithm(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def factory(algoName, popSize, eliteRate, mutationRate, problem, maxTabuSize, initialTemp):
+    def factory(algoName, popSize, eliteRate, mutationRate, problem, maxTabuSize, initialTemp,
+                heuristicIntensity, historyIntensity, decayRate, localPheRate):
         module = importlib.import_module('algorithms.' + algoName)
 
         algo = getattr(module, algoName)
@@ -40,6 +41,16 @@ class Algorithm(ABC):
                 problem=problem,
                 popSize=popSize,
                 initialTemp=initialTemp
+            )
+
+        if algoName == 'ACOAlgorithm':
+            return algo(
+                problem=problem,
+                popSize=popSize,
+                heuristicIntensity=heuristicIntensity,
+                historyIntensity=historyIntensity,
+                decayRate=decayRate,
+                localPheRate=localPheRate
             )
 
         else:

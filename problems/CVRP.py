@@ -1,4 +1,3 @@
-import copy
 import importlib
 import itertools
 import math
@@ -53,7 +52,7 @@ class CVRP:
         vec = np.random.permutation(list(range(1, self._dim)))
         return vec.tolist()
 
-    def _getVecWithStops(self, vec):
+    def getVecWithStops(self, vec):
 
         vecWithStops = [0, vec[0]]
         currentTruckCapacity = self._nodesDemands[vec[0]]
@@ -71,24 +70,23 @@ class CVRP:
         vecWithStops.append(0)
         return vecWithStops
 
-
     def calculateFitness(self, vec):
 
-        vecWithStops = self._getVecWithStops(vec)
+        vecWithStops = self.getVecWithStops(vec)
 
         distance = 0
         for i in range(len(vecWithStops) - 1):
-            distance += self._calcDist(vecWithStops[i], vecWithStops[i + 1])
+            distance += self.calcDist(vecWithStops[i], vecWithStops[i + 1])
 
         return int(distance - self._optimalVal)
 
-    def _calcDist(self, node1, node2):
+    def calcDist(self, node1, node2):
         return math.dist(self._nodesCoordinates[node1], self._nodesCoordinates[node2])
 
     def translateVec(self, vec):
 
         routesStr = f'{self.calculateFitness(vec) + self._optimalVal}\n0 '
-        vecWithStops = self._getVecWithStops(vec)
+        vecWithStops = self.getVecWithStops(vec)
         for i in range(1, len(vecWithStops) - 1):
             routesStr += f'{vecWithStops[i]} '
             if vecWithStops[i] == 0:
@@ -122,9 +120,9 @@ class CVRP:
     def _getCityWithMinDistanceToCurrent(self, current, cities):
 
         minCity = cities[0]
-        minDis = self._calcDist(current, cities[0])
+        minDis = self.calcDist(current, cities[0])
         for city in cities:
-            currDis = self._calcDist(current, city)
+            currDis = self.calcDist(current, city)
             if currDis < minDis:
                 minCity = city
                 minDis = currDis
@@ -148,6 +146,9 @@ class CVRP:
             neighbors.append(neighbor)
 
         return neighbors
+
+    def getTargetSize(self):
+        return self._dim - 1
 
     @staticmethod
     def factory(cvrpName, target):

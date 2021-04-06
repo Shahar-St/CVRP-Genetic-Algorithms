@@ -64,9 +64,10 @@ class TabuSearchAlgorithm(Algorithm):
 
         for nei in neighbors:
             if self._problem.calculateFitness(nei.getVec()) < self._problem.calculateFitness(
-                    currentSol.getVec()) or nei not in self._tabuList:
-                if nei not in self._tabuList:
-                    self._addToTabuList(nei)
+                    currentSol.getVec()):
+                return nei
+            elif nei not in self._tabuList:
+                self._addToTabuList(nei)
                 return nei
 
         return None

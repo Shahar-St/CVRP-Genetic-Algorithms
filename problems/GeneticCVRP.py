@@ -9,7 +9,7 @@ class GeneticCVRP(CVRP):
 
     def crossover(self, parent1Vec, parent2Vec):
 
-        parent1Vec = self._getVecWithStops(parent1Vec)
+        parent1Vec = self.getVecWithStops(parent1Vec)
 
         parent1Routes = []
         parent1routesDeltas = []
