@@ -1,7 +1,6 @@
 import math
 import random
 import time
-from math import sqrt
 
 import numpy as np
 
@@ -131,8 +130,3 @@ class GeneticAlgorithm(Algorithm):
                 i += 1
 
         return np.array(candidates)
-
-
-
-
-

@@ -10,9 +10,11 @@ from util.Consts import X, Y
 from util.Util import getValidIndexes
 
 
+# Define the problem and implements methods that algorithms can use
 class CVRP:
 
     def __init__(self, target):
+        # read and parse input file
         filePath = os.getcwd() + '\\util\\inputfiles\\' + str(target) + '.txt'
         inputFile = open(filePath, 'r')
 
@@ -83,8 +85,8 @@ class CVRP:
     def calcDist(self, node1, node2):
         return math.dist(self._nodesCoordinates[node1], self._nodesCoordinates[node2])
 
+    # takse a vec and print it according to the required output form
     def translateVec(self, vec):
-
         routesStr = f'{self.calculateFitness(vec) + self._optimalVal}\n0 '
         vecWithStops = self.getVecWithStops(vec)
         for i in range(1, len(vecWithStops) - 1):
@@ -103,6 +105,7 @@ class CVRP:
 
         return demands
 
+    # get a 'nearest neighbor' greedy vec
     def generateGreedyVec(self):
         allCities = [i for i in range(1, self._dim)]
         greedyVec = []
@@ -118,7 +121,6 @@ class CVRP:
         return greedyVec
 
     def _getCityWithMinDistanceToCurrent(self, current, cities):
-
         minCity = cities[0]
         minDis = self.calcDist(current, cities[0])
         for city in cities:
@@ -134,6 +136,7 @@ class CVRP:
         neighbor = vec[:index1] + np.flip(vec[index1:index2]).tolist() + vec[index2:]
         return neighbor
 
+    # gets a vec and return half of it's opt-2 neighbors (randomly)
     def generateNeighbors(self, vec):
 
         pairsList = list(itertools.combinations(range(self._dim - 1), 2))

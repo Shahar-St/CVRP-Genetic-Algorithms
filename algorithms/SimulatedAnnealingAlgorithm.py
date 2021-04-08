@@ -23,7 +23,6 @@ class SimulatedAnnealingAlgorithm(Algorithm):
         best = min(results)[1]
         return best
 
-
     def simulatedAnnealing(self, maxIter, isGreedy):
 
         if isGreedy:
@@ -45,14 +44,10 @@ class SimulatedAnnealingAlgorithm(Algorithm):
 
             delta = neighborFitness - currFitness
             currentTemp = self._initialTemp / float(iterCounter + 1)
-            if delta > 0:
-                a = math.exp(- delta / currentTemp)
-                b = 3
 
             if delta < 0 or random.random() < math.exp(- delta / currentTemp):
                 currentSol, currFitness = neighbor, neighborFitness
 
             iterCounter += 1
-
 
         return globalFitness, globalSolution

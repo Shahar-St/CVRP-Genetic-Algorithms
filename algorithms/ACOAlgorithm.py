@@ -18,6 +18,9 @@ class ACOAlgorithm(Algorithm):
 
         globalAnt = self._problem.generateGreedyVec()
         globalFitness = self._problem.calculateFitness(globalAnt)
+        if globalFitness == 0:
+            return globalAnt
+
         problemSize = self._problem.getTargetSize()
         initialPheromone = 1 / (problemSize * globalFitness)
         self._initPheromoneDict(initialPheromone)
@@ -93,7 +96,7 @@ class ACOAlgorithm(Algorithm):
             followingNode = antVec[i + 1]
             edge = frozenset((antVec[i], followingNode))
             newPheromone = ((1 - self._localPheRate) * self._pheromoneDict[edge]) + (
-                        self._localPheRate * initialPheromone)
+                    self._localPheRate * initialPheromone)
             self._pheromoneDict[edge] = newPheromone
 
     def _updateGlobalPheromone(self, globalAntVec, globalFitness):

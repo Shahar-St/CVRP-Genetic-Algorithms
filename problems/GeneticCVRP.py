@@ -7,6 +7,7 @@ from util.Util import getValidIndexes
 
 class GeneticCVRP(CVRP):
 
+    # Best Route Better Adjustment recombination
     def crossover(self, parent1Vec, parent2Vec):
 
         parent1Vec = self.getVecWithStops(parent1Vec)
@@ -50,13 +51,14 @@ class GeneticCVRP(CVRP):
         else:
             return self._insertionMutation(vec)
 
-
+    # pick 2 indexes randomly and swap them
     def _swapMutation(self, vec):
         vecSize = len(vec)
         index1, index2 = getValidIndexes(vecSize)
         vec[index1], vec[index2] = vec[index2], vec[index1]
         return vec
 
+    # takes a random index and insert it to a random location
     def _insertionMutation(self, vec):
         vecSize = len(vec)
         index1, insertionIndex = getValidIndexes(vecSize)
